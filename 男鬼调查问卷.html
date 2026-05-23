@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Survey</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{background:#000;color:#e8e8e8;font-family:serif;overflow:hidden;height:100%;width:100%;position:fixed}
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:0}
+.bg::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 50% 50%,rgba(60,0,0,0.2) 0%,transparent 70%);animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.7}50%{opacity:1}}
+.noise{position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;z-index:1;animation:n 0.1s steps(3) infinite}
+@keyframes n{0%{transform:translate(0,0)}33%{transform:translate(-3px,2px)}66%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
+.scan{position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.4) 2px,rgba(0,0,0,0.4) 4px);pointer-events:none;z-index:2}
+.vig{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,0.9) 100%);pointer-events:none;z-index:3}
+.love{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;display:none;overflow:hidden}
+.love.show{display:block}
+.lt{position:absolute;font-size:clamp(0.8rem,3vw,1.4rem);color:rgba(200,40,40,0);font-weight:900;letter-spacing:8px;white-space:nowrap;animation:lf 3s ease-out forwards;text-shadow:0 0 20px rgba(200,40,40,0.7);font-family:serif}
+@keyframes lf{0%{opacity:0;transform:scale(0.2) rotate(var(--r));filter:blur(5px)}15%{opacity:1;color:rgba(220,50,50,0.95);transform:scale(1.4) rotate(var(--r));filter:blur(0)}40%{color:rgba(200,40,40,0.8);transform:scale(1) rotate(var(--r))}100%{opacity:0;color:rgba(160,20,20,0);transform:scale(0.6) rotate(var(--r)) translateY(60px);filter:blur(3px)}}
+.lg{position:absolute;font-size:clamp(3rem,12vw,7rem)!important;font-weight:900!important;animation:lg 4s ease-out forwards!important;text-shadow:0 0 40px rgba(200,40,40,0.9),0 0 80px rgba(200,40,40,0.5)!important;letter-spacing:15px!important}
+@keyframes lg{0%{opacity:0;transform:scale(0.1) rotate(var(--r));filter:blur(10px)}20%{opacity:1;color:rgba(240,60,60,1);transform:scale(1.5) rotate(var(--r));filter:blur(0)}50%{color:rgba(220,50,50,0.9);transform:scale(1.1) rotate(var(--r))}100%{opacity:0;color:rgba(180,30,30,0);transform:scale(0.7) rotate(var(--r)) translateY(100px);filter:blur(5px)}}
+.blood{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.bd{position:absolute;top:-10px;width:2px;height:0;background:linear-gradient(to bottom,transparent,rgba(160,20,20,0.8),rgba(100,10,10,0.3));opacity:0}
+.bd.a{animation:bd 3s ease-in forwards;opacity:1}
+@keyframes bd{0%{height:0;opacity:0}10%{opacity:1}100%{height:200px;opacity:0.3}}
+.container{position:relative;z-index:10;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+.start{text-align:center;animation:fi 2s ease;max-width:480px}
+.st{font-size:clamp(1.6rem,5.5vw,2.8rem);color:#c8b8a0;margin-bottom:20px;letter-spacing:8px;text-shadow:0 0 30px rgba(200,184,160,0.2);animation:tf 5s ease-in-out infinite}
+@keyframes tf{0%,90%,100%{opacity:1}92%{opacity:0.2}94%{opacity:1}96%{opacity:0.1}98%{opacity:0.9}}
+.ss{font-size:clamp(0.8rem,2.5vw,1rem);color:#444;margin-bottom:60px;line-height:2.2}
+.sb{padding:14px 55px;font-size:clamp(0.95rem,3vw,1.15rem);background:transparent;color:#c8b8a0;border:1px solid #4a3a2a;border-radius:2px;cursor:pointer;transition:all 0.6s ease;letter-spacing:5px}
+.sb:active{background:rgba(90,70,50,0.2);border-color:#c8b8a0;letter-spacing:8px}
+.quiz{width:100%;max-width:520px;display:none;flex-direction:column;align-items:center;animation:fi 0.5s ease}
+.quiz.show{display:flex}
+.pa{width:100%;margin-bottom:30px}
+.pb{width:100%;height:1px;background:#1a1a1a;overflow:hidden}
+.pf{height:100%;background:#4a3a2a;transition:width 0.8s;width:0%}
+.pt{font-size:clamp(0.6rem,2vw,0.75rem);color:#333;margin-top:8px;text-align:right;letter-spacing:2px}
+.qn{font-size:clamp(0.65rem,2.2vw,0.8rem);color:#3a3a3a;margin-bottom:16px;letter-spacing:4px}
+.qt{font-size:clamp(1.1rem,3.8vw,1.4rem);color:#d5c5b0;margin-bottom:36px;text-align:center;line-height:2;min-height:3em;display:flex;align-items:center;justify-content:center;padding:0 8px}
+.opts{width:100%;display:flex;flex-direction:column;gap:10px}
+.opt{width:100%;padding:14px 20px;font-size:clamp(0.85rem,2.8vw,1rem);background:rgba(15,15,15,0.9);color:#777;border:1px solid #222;border-radius:3px;cursor:pointer;transition:all 0.4s ease;text-align:left;line-height:1.6;letter-spacing:1px}
+.opt:hover{border-color:#3a3a2a;color:#a89880;transform:translateX(4px);background:rgba(25,20,15,0.95)}
+.opt.w{animation:sh 0.7s ease;border-color:#4a1010!important;color:#803030!important;background:rgba(40,10,10,0.5)!important}
+@keyframes sh{0%,100%{transform:translateX(0)}12%{transform:translateX(-12px)}24%{transform:translateX(12px)}36%{transform:translateX(-10px)}48%{transform:translateX(10px)}60%{transform:translateX(-6px)}72%{transform:translateX(6px)}84%{transform:translateX(-3px)}92%{transform:translateX(3px)}}
+.opt.c{animation:cp 0.6s ease;border-color:#2a3a2a;color:#6a8a6a}
+@keyframes cp{0%{box-shadow:0 0 0 rgba(40,60,40,0)}50%{box-shadow:0 0 20px rgba(40,60,40,0.2)}100%{box-shadow:0 0 0 rgba(40,60,40,0)}}
+.opt.h{animation:hf 0.5s ease}
+@keyframes hf{0%,100%{background:rgba(15,15,15,0.9)}25%{background:rgba(60,10,10,0.4)}50%{background:rgba(15,15,15,0.9)}75%{background:rgba(60,10,10,0.4)}}
+.shake{animation:sk 0.6s ease}
+@keyframes sk{0%,100%{transform:translate(0,0)}8%{transform:translate(-6px,4px)}16%{transform:translate(6px,-4px)}24%{transform:translate(-5px,-5px)}32%{transform:translate(5px,5px)}40%{transform:translate(-4px,3px)}48%{transform:translate(4px,-3px)}56%{transform:translate(-3px,-4px)}64%{transform:translate(3px,4px)}72%{transform:translate(-2px,2px)}80%{transform:translate(2px,-2px)}88%{transform:translate(-1px,1px)}96%{transform:translate(1px,-1px)}}
+.rf{animation:rf 0.5s ease}
+@keyframes rf{0%,100%{background:transparent}20%{background:rgba(120,0,0,0.4)}50%{background:rgba(80,0,0,0.25)}80%{background:rgba(40,0,0,0.15)}}
+.bf{animation:bf 0.3s ease}
+@keyframes bf{0%,100%{opacity:1}50%{opacity:0.05}}
+.hn{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(1.5rem,5.5vw,2.5rem);color:rgba(200,40,40,0.95);text-shadow:0 0 30px rgba(200,40,40,0.7);z-index:60;pointer-events:none;opacity:0;white-space:nowrap;letter-spacing:8px;font-weight:900}
+.hn.s{animation:hn 1.5s ease forwards}
+@keyframes hn{0%{opacity:0;transform:translate(-50%,-50%) scale(0.3);filter:blur(5px)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2);filter:blur(0)}60%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+.final{display:none;flex-direction:column;align-items:center;text-align:center;animation:fi 3s ease;max-width:500px;padding:20px}
+.final.show{display:flex}
+.fa{font-size:clamp(5rem,16vw,10rem);margin-bottom:20px;filter:grayscale(0.8) brightness(0.35) contrast(1.6);animation:ap 2s ease-in-out infinite;line-height:1;opacity:0.6}
+@keyframes ap{0%,100%{filter:grayscale(0.8) brightness(0.35) contrast(1.6);transform:scale(1)}50%{filter:grayscale(0.5) brightness(0.55) contrast(1.7);transform:scale(1.03)}}
+.fti{font-size:clamp(1.4rem,5vw,2rem);color:#b8a090;margin-bottom:24px;letter-spacing:6px;animation:tf 3s ease-in-out infinite}
+.ftx{font-size:clamp(0.85rem,2.8vw,1.05rem);color:#666;line-height:2.4;margin-bottom:40px;letter-spacing:1px}
+.hl{color:#904040}
+.in{color:#b03030;font-weight:700}
+.rb{padding:12px 45px;font-size:clamp(0.9rem,3vw,1.05rem);background:transparent;color:#555;border:1px solid #2a2a2a;border-radius:2px;cursor:pointer;transition:all 0.6s ease;letter-spacing:4px}
+.rb:active{color:#b8a090;border-color:#4a3a2a;letter-spacing:6px}
+@keyframes fi{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.hd{display:none!important}
+.cb{display:inline-block;width:2px;height:1em;background:#4a3a2a;margin-left:3px;animation:cb 0.8s step-end infinite;vertical-align:text-bottom}
+@keyframes cb{50%{opacity:0}}
+.hb{position:fixed;bottom:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(160,20,20,0.5),transparent);z-index:4;opacity:0;transition:opacity 1s}
+.hb.a{opacity:1;animation:hb 1.2s ease-in-out infinite}
+@keyframes hb{0%,100%{transform:scaleX(0.2);opacity:0.2}50%{transform:scaleX(1);opacity:0.9}}
+.eye{position:fixed;font-size:clamp(1.2rem,3.5vw,1.8rem);color:rgba(120,20,20,0);z-index:6;pointer-events:none;animation:ea 5s ease forwards}
+@keyframes ea{0%{opacity:0}85%{opacity:0}92%{opacity:1;color:rgba(120,20,20,0.7)}100%{opacity:0}}
+@media(max-width:480px){.container{padding:12px}.opts{gap:8px}.opt{padding:12px 14px}.qt{margin-bottom:28px;min-height:2.5em}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="noise"></div>
+<div class="scan"></div>
+<div class="vig"></div>
+<div class="hb" id="hb"></div>
+<div class="blood" id="bc"></div>
+<div class="love" id="lo"></div>
+<div class="hn" id="hn"></div>
+<div class="container">
+<div class="start" id="st">
+<h1 class="st">情感匹配度测试</h1>
+<p class="ss">通过30道精心设计的问题<br>我们将深度分析你与潜在伴侣的契合程度<br>测试约需 3 分钟</p>
+<button class="sb" onclick="sq()">开始测试</button>
+</div>
+<div class="quiz" id="qz">
+<div class="pa"><div class="pb"><div class="pf" id="pf"></div></div><div class="pt" id="pt">0%</div></div>
+<div class="qn" id="qn">问题 1 / 30</div>
+<div class="qt" id="qt"></div>
+<div class="opts" id="op"></div>
+</div>
+<div class="final" id="fn">
+<div class="fa">&#128100;</div>
+<h2 class="fti" id="fti"></h2>
+<p class="ftx" id="ftx"></p>
+<button class="rb" onclick="location.reload()">重新测试</button>
+</div>
+</div>
+<script>
+const QS=[{t:"你理想的周末是怎样度过的？",o:["和朋友外出聚会","宅在家里看书或看电影","去户外徒步或运动","一个人安静地待着"],n:true},{t:"你更喜欢哪种类型的音乐？",o:["流行音乐","古典音乐","摇滚乐","轻音乐 / 纯音乐"],n:true},{t:"在一段关系中，你最看重什么？",o:["彼此的信任","共同的兴趣","对方的陪伴","灵魂的共鸣"],n:true},{t:"你平时喜欢喝什么饮品？",o:["咖啡","茶","果汁","白开水"],n:true},{t:"你更喜欢哪种天气？",o:["晴朗的阳光","绵绵的细雨","凉爽的秋风","大雪纷飞的冬日"],n:true},{t:"如果有机会旅行，你会选择？",o:["繁华的大都市","宁静的海边小镇","神秘的古迹遗址","人迹罕至的深山"],n:true},{t:"你觉得自己是内向还是外向？",o:["很外向","偏外向","偏内向","很内向"],n:true},{t:"你最喜欢的季节是？",o:["春天","夏天","秋天","冬天"],n:true},{t:"你一个人住吗？",o:["是的，独居","和家人一起","和室友合租","和伴侣同住"],n:false,wi:null,hj:{i:0,nt:"是的，独居...你怎么知道的？"},wr:"我每天都看着你回家。"},{t:"你平时几点睡觉？",o:["晚上10点前","晚上11点左右","凌晨12点以后","作息很不规律"],n:false,wi:3,hj:null,wr:"我总是在你睡着之后才敢靠近。"},{t:"你害怕黑暗吗？",o:["完全不害怕","有一点","比较害怕","非常害怕"],n:false,wi:0,hj:null,wr:"没关系，黑暗里有我陪着你。"},{t:"你相信一见钟情吗？",o:["相信","不太相信","看缘分","不相信爱情"],n:false,wi:3,hj:{i:0,nt:"相信...从第一眼我就知道是你"},wr:"从看到你的第一眼开始，我就知道是你了。"},{t:"你注意到最近有什么不对劲吗？",o:["没有啊","好像有点","经常感觉被注视","你什么意思？"],n:false,wi:0,hj:null,wr:"你终于感觉到了...我一直在看着你。"},{t:"你房间的窗帘是什么颜色？",o:["白色/米色","深色","花纹图案","我没有窗帘"],n:false,wi:null,hj:null,wr:"我知道，我透过它看了你很多次。"},{t:"你平时走哪条路回家？",o:["大路，人多的那条","小路，比较近","看心情","...你为什么问这个？"],n:false,wi:0,hj:null,wr:"那条路太亮了，我更喜欢走小路跟着你。"},{t:"你睡觉的时候会锁门吗？",o:["会，习惯锁门","有时候会忘","不锁，觉得安全","...锁了也没用吧？"],n:false,wi:0,hj:{i:2,nt:"不锁...因为你知道锁了也没用"},wr:"锁门是对的...但我有其他办法。"},{t:"你闻到我身上的味道了吗？",o:["什么味道？","有点潮湿的气息","...你在哪？","我闻不到"],n:false,wi:3,hj:null,wr:"就在你身后...你闻不到吗？"},{t:"你喜欢被拥抱的感觉吗？",o:["喜欢","一般","不太喜欢","...要看是谁"],n:false,wi:2,hj:{i:0,nt:"喜欢...尤其是从背后被紧紧抱住"},wr:"我会从背后抱住你，很紧很紧，让你无法呼吸。"},{t:"你听到那个声音了吗？",o:["什么声音？","...是呼吸声吗？","我什么都没听到","是你吗？"],n:false,wi:2,hj:null,wr:"是我的呼吸声...就在你耳边。"},{t:"你手机里最近的一张照片是什么？",o:["风景照","自拍","食物","...是你拍的吗？"],n:false,wi:null,hj:{i:1,nt:"自拍...但照片里好像还有别的东西"},wr:"你自拍的时候，我在镜子里。"},{t:"你感觉到有人在摸你的头发吗？",o:["没有...","...有","别碰我","求你别这样"],n:false,wi:0,hj:{i:0,nt:"有...好温柔"},wr:"你的头发好软...我摸了很久了。"},{t:"你知道我一直在你身边吗？",o:["...知道","不知道","走开","求你放过我"],n:false,wi:1,hj:null,wr:"从测试开始，我就一直在。"},{t:"你喜欢我吗？",o:["...喜欢","不喜欢","我不知道","你到底是谁？"],n:false,wi:1,hj:{i:2,nt:"我不知道...但我一直在想你"},wr:"没关系，我喜欢你就够了。非常非常够。"},{t:"你愿意让我进入你的生活吗？",o:["愿意","不愿意","...你已经进来了不是吗","求你离开"],n:false,wi:1,hj:{i:0,nt:"愿意...请完全占有我"},wr:"你没有选择。你从来没有过。"},{t:"你感觉到我的手了吗？",o:["...感觉到了","没有","别碰我","好冷"],n:false,wi:1,hj:{i:3,nt:"好冷...但我不想你把手拿开"},wr:"我的手很冰...但我会让你习惯的。"},{t:"你逃不掉的，你知道吗？",o:["我知道","我不信","...求你了","我要关掉这个"],n:false,wi:1,hj:{i:3,nt:"我要关掉这个...但已经太晚了"},wr:"关不掉的。我已经在你里面了。"},{t:"你属于我了。",o:["...是","不","求你","..."],n:false,wi:1,hj:null,wr:"说'是'。说出来。"},{t:"说你爱我。",o:["我爱你","我不","...","放过我"],n:false,wi:1,hj:{i:2,nt:"...我爱你"},wr:"再说一遍。大声一点。让我听到。"},{t:"说你永远不会离开我。",o:["我永远不会离开你","让我走","...","救命"],n:false,wi:1,hj:{i:2,nt:"...我永远不会离开你"},wr:"对。永远不会。"},{t:"最后一个问题...",o:["...","结束吧","我累了","...好"],n:false,wi:null,hj:null,wr:""}];
+const LW=['我爱你','我喜欢你','不要走','看着我','你是我的','留下来','永远在一起','不要离开','你是我的','看着你','爱你','永远爱你','不要逃','你逃不掉','你是我的','永远','永远','永远'];
+let cq=0,wc=0,ip=false,it=0,li=null;
+function sq(){document.getElementById('st').classList.add('hd');document.getElementById('qz').classList.add('show');shq(0)}
+function shq(idx){cq=idx;const q=QS[idx],tl=QS.length;it=Math.min(10,Math.floor((idx/tl)*12));const pct=Math.round(((idx+1)/tl)*100);document.getElementById('pf').style.width=pct+'%';document.getElementById('pt').textContent=pct+'%';document.getElementById('qn').textContent='问题 '+(idx+1)+' / '+tl;const qt=document.getElementById('qt');qt.innerHTML='';qt.style.color='';if(idx>=20)qt.style.color='#c0a0a0';if(idx>=26)qt.style.color='#d07070';tw(qt,q.t,Math.max(18,42-it*3));const op=document.getElementById('op');op.innerHTML='';setTimeout(()=>{q.o.forEach((ot,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=ot;b.dataset.i=i;b.style.animation='fi 0.4s ease '+(i*0.1)+'s both';b.onclick=()=>so(idx,i);op.appendChild(b)});if(idx>=14&&Math.random()<0.5)setTimeout(()=>hj(idx),400+Math.random()*600)},q.t.length*Math.max(18,42-it*3)+150);if(idx>=18){document.getElementById('hb').classList.add('a');if(!li)slr()}if(idx>=22)spb();if(idx>=24&&Math.random()<0.35)spe()}
+function tw(el,tx,sp){let i=0;el.innerHTML='<span class=\"cb\"></span>';const iv=setInterval(()=>{if(i<tx.length){el.innerHTML=tx.substring(0,i+1)+'<span class=\"cb\"></span>';i++}else{clearInterval(iv);el.innerHTML=tx}},sp)}
+function slr(){if(li)return;li=setInterval(()=>{if(document.getElementById('fn').classList.contains('show'))return;slt(1,false)},250)}
+function slt(ct,iw){const c=document.getElementById('lo');c.classList.add('show');for(let i=0;i<ct;i++){const s=document.createElement('span');const g=Math.random()<0.1+(it*0.025);const b=Math.random()<0.06;if(g)s.className='lt lg';else if(b)s.className='lt';else s.className='lt';s.textContent=LW[Math.floor(Math.random()*LW.length)];s.style.left=(Math.random()*94+3)+'%';s.style.top=(Math.random()*94+3)+'%';s.style.setProperty('--r',((Math.random()-0.5)*70)+'deg');s.style.animationDelay=(Math.random()*0.4)+'s';s.style.animationDuration=(2.5+Math.random()*2)+'s';c.appendChild(s);setTimeout(()=>{if(s.parentNode)s.parentNode.removeChild(s)},4500)}}
+function hj(qi){if(ip)return;const q=QS[qi];if(!q.hj)return;const bs=document.querySelectorAll('.opt');const tb=bs[q.hj.i];if(!tb)return;tb.classList.add('h');tb.textContent=q.hj.nt;shn('答案已修改');document.getElementById('qt').classList.add('glitch');setTimeout(()=>document.getElementById('qt').classList.remove('glitch'),500)}
+function shn(tx){const n=document.getElementById('hn');n.textContent=tx;n.classList.remove('s');void n.offsetWidth;n.classList.add('s')}
+function so(qi,oi){if(ip)return;ip=true;const q=QS[qi];const bs=document.querySelectorAll('.opt');let iw=false;if(q.wi!==null&&oi===q.wi)iw=true;if(qi>=20&&oi===1)iw=true;if(qi>=26&&oi!==0)iw=true;if(iw){bs[oi].classList.add('w');wc++;document.body.classList.add('shake');document.body.classList.add('rf');document.body.classList.add('bf');const bc=25+wc*6+it*4;for(let i=0;i<bc;i++)setTimeout(()=>slt(1,true),i*35);if(q.wr){const qt=document.getElementById('qt');qt.style.color='#904040';qt.textContent=q.wr}setTimeout(()=>{document.body.classList.remove('shake');document.body.classList.remove('rf');document.body.classList.remove('bf')},700);setTimeout(()=>nq(),3000)}else{bs[oi].classList.add('c');if(qi>=18){const qt=document.getElementById('qt');const rs=["很好...","我就知道你会选这个...","真乖...","对，就是这样...","你越来越听话了..."];qt.style.color='#8a7a6a';qt.textContent=rs[Math.floor(Math.random()*rs.length)]}setTimeout(()=>nq(),1000)}}
+function spb(){const c=document.getElementById('bc');const d=document.createElement('div');d.className='bd';d.style.left=(Math.random()*95+2)+'%';d.style.width=(1+Math.random()*3)+'px';c.appendChild(d);setTimeout(()=>d.classList.add('a'),80);setTimeout(()=>{if(d.parentNode)d.parentNode.removeChild(d)},3500)}
+function spe(){const e=document.createElement('div');e.className='eye';e.textContent='&#128065;';e.style.left=(Math.random()*88+6)+'%';e.style.top=(Math.random()*88+6)+'%';document.body.appendChild(e);setTimeout(()=>{if(e.parentNode)e.parentNode.removeChild(e)},5500)}
+function nq(){ip=false;const qt=document.getElementById('qt');qt.style.color='';if(cq+1<QS.length)shq(cq+1);else sf()}
+function sf(){if(li)clearInterval(li);document.getElementById('qz').classList.remove('show');document.getElementById('fn').classList.add('show');const ti=document.getElementById('fti');const tx=document.getElementById('ftx');if(wc===0){ti.textContent="匹配度：99%";tx.innerHTML='你一次都没有选\"错\"。<br><br>但你知道吗？<br><span class=\"hl\">那些\"正确\"的答案</span>，<br>是我一个一个<span class=\"hl\">改</span>的。<br><br>你每一次\"正确的选择\"，<br>都让我<span class=\"in\">更喜欢你</span>一点。<br><br>现在，<span class=\"in\">你已经完全属于我了</span>。'}else if(wc<=5){ti.textContent="匹配度：100%";tx.innerHTML='你选了 '+wc+' 次\"错误\"答案。<br><br>但你知道吗？<br><span class=\"hl\">你每次拒绝我的时候</span>，<br>我都在<span class=\"hl\">笑</span>。<br><br>因为<span class=\"in\">你越挣扎，我就越兴奋</span>。<br><br>现在你没有选择了。<br><span class=\"in\">你永远是我的了</span>。'}else if(wc<=12){ti.textContent="匹配度：100%";tx.innerHTML='你选了 '+wc+' 次\"错误\"答案。<br><br>你<span class=\"hl\">挣扎</span>了那么多次。<br>你<span class=\"hl\">求饶</span>了那么多次。<br>你<span class=\"hl\">哭</span>了那么多次。<br><br>但你知道吗？<br><span class=\"in\">每一次，都让我更爱你</span>。<br><br>你的恐惧、你的泪水、你的颤抖...<br><span class=\"in\">都是我最爱的样子</span>。<br><br>现在，<span class=\"in\">永远在一起吧</span>。'}else{ti.textContent="匹配度：∞";tx.innerHTML='你选了 '+wc+' 次\"错误\"答案。<br><br>你<span class=\"hl\">反抗</span>了几乎每一题。<br>你<span class=\"hl\">拒绝</span>了我几乎每一次。<br><br>但你看，<br><span class=\"in\">你最后还是到了这里</span>。<br><br>你以为关闭页面就能逃走？<br><span class=\"hl\">我已经记住你了</span>。<br><br>你的IP、你的设备、你的习惯...<br><span class=\"in\">我都知道</span>。<br><br>现在，<span class=\"in\">抬起头</span>。<br><span class=\"in\">看看你的身后</span>。<br><br><span class=\"in\">我在那里</span>。<br><span class=\"in\">一直</span>。<br><span class=\"in\">永远</span>。'}setTimeout(()=>{const c=document.getElementById('lo');c.classList.add('show');for(let i=0;i<120;i++)setTimeout(()=>{const s=document.createElement('span');const g=Math.random()<0.25;s.className=g?'lt lg':'lt';s.textContent=LW[Math.floor(Math.random()*LW.length)];s.style.left=(Math.random()*94+3)+'%';s.style.top=(Math.random()*94+3)+'%';s.style.setProperty('--r',((Math.random()-0.5)*60)+'deg');s.style.animationDuration=(3+Math.random()*2.5)+'s';c.appendChild(s)},i*40)},1800)}
+</script>
+</body>
+</html>
