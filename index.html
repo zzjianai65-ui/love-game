@@ -129,10 +129,15 @@ function sf(){if(li)clearInterval(li);document.getElementById('qz').classList.re
 </audio>
 
 <script>
-window.addEventListener("click", () => {
+window.addEventListener("click", async () => {
     const bgm = document.getElementById("bgm");
-    bgm.volume = 0.5;
-    bgm.play();
+
+    try{
+        bgm.volume = 0.5;
+        await bgm.play();
+    }catch(e){
+        console.log(e);
+    }
 }, { once:true });
 </script>
 </body>
